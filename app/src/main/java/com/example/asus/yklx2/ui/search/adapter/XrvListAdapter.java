@@ -89,7 +89,7 @@ public class XrvListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     @Override
     public int getItemCount() {
-        return list.size();
+        return this.list.size();
     }
 
 
@@ -114,7 +114,7 @@ public class XrvListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
      * @param templist
      */
     public void refresh(List<SearchBean.DataBean> templist) {
-        //        this.list.clear();
+        this.list.clear();
         this.list.addAll(templist);
         notifyDataSetChanged();
     }

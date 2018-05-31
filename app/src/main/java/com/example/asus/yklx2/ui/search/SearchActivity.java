@@ -31,11 +31,13 @@ public class SearchActivity extends BaseActivity<SearchPresenter> implements Sea
     private ImageView iii;
     private ImageView lift;
     private String keywords;
+
     private GridLayoutManager gridLayoutManager;
     private int pp =1;
     private int pscid=1;
     private LinearLayout sdsd;
     private boolean isRefresh = true;
+    private List<SearchBean.DataBean> list = new ArrayList<>();
     private XrvListAdapter adapter;
 
     @Override
@@ -46,9 +48,12 @@ public class SearchActivity extends BaseActivity<SearchPresenter> implements Sea
         iii = (ImageView) findViewById(R.id.iii);
         lift = (ImageView) findViewById(R.id.lift);
         sdsd = (LinearLayout) findViewById(R.id.sdsd);
+
         //设置布局管理器
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         xrv.setLayoutManager(linearLayoutManager);
+        adapter = new XrvListAdapter(this, list);
+        xrv.setAdapter(adapter);
         lift.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -97,16 +102,18 @@ public class SearchActivity extends BaseActivity<SearchPresenter> implements Sea
             @Override
             public void onRefresh() {
                 //刷新
-                isRefresh = true;
                 pscid=1;
+                isRefresh = true;
+
                 mPresenter.getPresenter(keywords,pscid+"");
             }
 
             @Override
             public void onLoadMore() {
                 //加载更多
-                isRefresh = false;
                 pscid++;
+                isRefresh = false;
+
                 mPresenter.getPresenter(keywords,pscid+"");
             }
         });
@@ -127,27 +134,26 @@ public class SearchActivity extends BaseActivity<SearchPresenter> implements Sea
     @Override
     public void getProductsSuccess(SearchBean searchBean) {
 
-        List<SearchBean.DataBean> list = searchBean.getData();
-        final List<SearchBean.DataBean> tempList = new ArrayList<>();
-        tempList.addAll(list);
+        final List<SearchBean.DataBean> list = searchBean.getData();
+//        final List<SearchBean.DataBean> tempList = new ArrayList<>();
+//        tempList.addAll(list);
         //创建适配器
         if (isRefresh) {
-            adapter = new XrvListAdapter(this, list);
-            xrv.setAdapter(adapter);
-            adapter.refresh(tempList);
+
+            adapter.refresh(list);
             xrv.refreshComplete();//设置刷新完成
         } else {
-            if (adapter != null) {
-                //判断适配器是否创建过
-                adapter.loadMore(tempList);
-                xrv.loadMoreComplete();//设置加载更多完成
-            }
+
+            //判断适配器是否创建过
+            adapter.loadMore(list);
+            xrv.loadMoreComplete();//设置加载更多完成
+
         }
         adapter.setOnListItemClickListener(new XrvListAdapter.OnListItemClickListener() {
             @Override
             public void OnItemClick(int position) {
                 Intent intent = new Intent(SearchActivity.this, ListDetailsActivity.class);
-                intent.putExtra("pid",tempList.get(position).getPid());
+                intent.putExtra("pid",list.get(position).getPid());
                 startActivity(intent);
             }
         });
